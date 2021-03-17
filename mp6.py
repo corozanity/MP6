@@ -1,5 +1,6 @@
 import csv
 
+
 def show_menu():
     print("(1)Input Project Details")
     print("(2)View Projects")
@@ -13,32 +14,26 @@ def enter_project():
     id_number = input("Enter ID Number: ")
     flag = True
     while flag:
-        infile = open("proj.csv", "r")
-        creader = csv.reader(infile)
+        with open("proj.csv", "r") as infile:
+            creader = csv.DictReader(infile, delimiter=",")
+            for row in creader:
+                if id_number in row['ID']:
+                    print("ID already exists.")
+                    id_number = input("Enter ID Number: ")
 
-        for row in creader:
-            if id_number in row[3]:
-                print("ID already exists.")
-                id_number = input("Enter ID Number: ")
+                else:
+                    flag = False
 
-            else:
-                project_title = input("Enter project title: ")
-                project_size = input("Enter number of pages: ")
-                project_priority = input("Enter priority: ")
-                flag = False
-
+    project_title = input("Enter project title: ")
+    project_size = input("Enter number of pages: ")
+    project_priority = input("Enter priority: ")
     infile.close()
-
-
-
-
 
     file = open("proj.csv", "a", newline="\n")
     cwriter = csv.writer(file)
     cwriter.writerow([project_priority, project_title, project_size, id_number])
 
     file.close()
-
 
 
 def show_submenu2():
@@ -57,10 +52,12 @@ def submenu21(proj_id):
             proj[row["ID"]] = {k: v for k, v in row.items() if k != 'ID'}
         print(proj[proj_id])
         print()
-    except EOFError:
+    except KeyError:
         print("ID does not exist.")
+        print()
 
     file.close()
+
 
 def submenu23():
 
@@ -71,24 +68,23 @@ def submenu23():
             print(row)
     print()
 
+
 def show_submenu3():
     print("(1)Create Schedule")
     print("(2)View Updated Schedule")
 
 
-
 def submenu31():
-    with open('proj.csv', 'r') as file:
-        csv_input = csv.DictReader(file)
-        data = sorted(csv_input, key=lambda row: (row['Priority'], row['Size']))
 
-    with open('queue.csv', 'w') as outfile:
-        csv_output = csv.DictWriter(outfile, fieldnames=csv_input.fieldnames)
-        csv_output.writeheader()
-        csv_output.writerows(data)
-        print()
-        for rows in data:
-            print(rows)
+    with open('proj.csv', 'r') as infile, open('queue.csv', 'w') as outfile:
+        writer = csv.writer(outfile, delimiter=',')
+        reader = csv.reader(infile, delimiter=',')
+        _ = next(reader)
+        data = sorted(reader, key=lambda row: (int(row[0]), int(row[2])))
+        print('Priority, Title, Size, ID')
+        for row in data:
+            writer.writerow(row)
+            print(row)
 
     print()
 
