@@ -1,4 +1,5 @@
 import csv
+import pandas as pd
 
 
 def show_menu():
@@ -10,7 +11,6 @@ def show_menu():
 
 
 def enter_project():
-
     id_number = input("Enter ID Number: ")
     flag = True
     while flag:
@@ -60,12 +60,8 @@ def submenu21(proj_id):
 
 
 def submenu23():
-
-    with open('proj.csv', 'r') as file:
-        creader = csv.DictReader(file)
-        print()
-        for row in creader:
-            print(row)
+    data = pd.read_csv("proj.csv")
+    print(data.to_string(index=False))
     print()
 
 
@@ -75,17 +71,15 @@ def show_submenu3():
 
 
 def submenu31():
+    data = pd.read_csv("proj.csv")
+    sorted_data = data.sort_values(by=["Priority", "Size"], ascending=True)
+    sorted_data.to_csv(r'proj.csv', index=False)
+    print()
 
-    with open('proj.csv', 'r') as infile, open('queue.csv', 'w') as outfile:
-        writer = csv.writer(outfile, delimiter=',')
-        reader = csv.reader(infile, delimiter=',')
-        _ = next(reader)
-        data = sorted(reader, key=lambda row: (int(row[0]), int(row[2])))
-        print('Priority, Title, Size, ID')
-        for row in data:
-            writer.writerow(row)
-            print(row)
 
+def submenu32():
+    data = pd.read_csv("proj.csv")
+    print(data.to_string(index=False))
     print()
 
 
@@ -124,7 +118,7 @@ def main():
                 submenu31()
 
             elif sub_choice == "2":
-                print("Unimplemented")
+                submenu32()
 
         elif choice == "4":
             print("Unimplemented")
@@ -132,6 +126,10 @@ def main():
         elif choice == "5":
             exit()
             print()
+
+        elif choice == "6":
+            data = pd.read_csv("sorted.csv")
+            print(data.values[1][1])
 
         else:
             print("Invalid Input")
