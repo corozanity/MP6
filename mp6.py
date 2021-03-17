@@ -10,23 +10,25 @@ def show_menu():
 
 def enter_project():
 
-    infile = open("proj.csv", "r")
-    creader = csv.reader(infile)
     id_number = input("Enter ID Number: ")
     flag = True
     while flag:
-        for row in infile:
-            if id_number in row:
+        infile = open("proj.csv", "r")
+        creader = csv.reader(infile)
+
+        for row in creader:
+            if id_number in row[3]:
                 print("ID already exists.")
                 id_number = input("Enter ID Number: ")
 
             else:
+                project_title = input("Enter project title: ")
+                project_size = input("Enter number of pages: ")
+                project_priority = input("Enter priority: ")
                 flag = False
 
     infile.close()
-    project_title = input("Enter project title: ")
-    project_size = input("Enter number of pages: ")
-    project_priority = input("Enter priority: ")
+
 
 
 
@@ -54,6 +56,7 @@ def submenu21(proj_id):
         for row in table:
             proj[row["ID"]] = {k: v for k, v in row.items() if k != 'ID'}
         print(proj[proj_id])
+        print()
     except EOFError:
         print("ID does not exist.")
 
@@ -62,6 +65,20 @@ def submenu21(proj_id):
 def submenu23():
 
     with open('proj.csv', 'r') as file:
+        creader = csv.DictReader(file)
+        print()
+        for row in creader:
+            print(row)
+    print()
+
+def show_submenu3():
+    print("(1)Create Schedule")
+    print("(2)View Updated Schedule")
+
+
+
+def submenu31():
+    with open('proj.csv', 'r') as file:
         csv_input = csv.DictReader(file)
         data = sorted(csv_input, key=lambda row: (row['Priority'], row['Size']))
 
@@ -69,13 +86,11 @@ def submenu23():
         csv_output = csv.DictWriter(outfile, fieldnames=csv_input.fieldnames)
         csv_output.writeheader()
         csv_output.writerows(data)
+        print()
         for rows in data:
             print(rows)
 
-
-def show_submenu3():
-    print("(1)Create Schedule")
-    print("(2)View Updated Schedule")
+    print()
 
 
 def show_submenu4():
@@ -106,13 +121,21 @@ def main():
                 submenu23()
 
         elif choice == "3":
-            print("Unimplemented")
+            show_submenu3()
+
+            sub_choice = input("Enter your choice: ")
+            if sub_choice == "1":
+                submenu31()
+
+            elif sub_choice == "2":
+                print("Unimplemented")
 
         elif choice == "4":
             print("Unimplemented")
 
         elif choice == "5":
             exit()
+            print()
 
         else:
             print("Invalid Input")
