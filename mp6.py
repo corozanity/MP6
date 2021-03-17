@@ -17,7 +17,7 @@ def enter_project():
         with open("proj.csv", "r") as infile:
             creader = csv.DictReader(infile, delimiter=",")
             for row in creader:
-                if id_number in row['ID']:
+                while id_number in row['ID']:
                     print("ID already exists.")
                     id_number = input("Enter ID Number: ")
 
