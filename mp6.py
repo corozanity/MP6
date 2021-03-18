@@ -11,6 +11,7 @@ def show_menu():
 
 
 def enter_project():
+
     id_number = input("Enter ID Number: ")
     flag = True
     while flag:
@@ -37,12 +38,14 @@ def enter_project():
 
 
 def show_submenu2():
+
     print("(1)One Project")
     print("(2)Show completed project")
     print("(3)Show all projects")
 
 
 def submenu21(proj_id):
+
     file = open("proj.csv", "r", encoding='utf-8-sig')
     table = csv.DictReader(file)
     proj = {}
@@ -59,35 +62,60 @@ def submenu21(proj_id):
     file.close()
 
 
+def submenu22():
+
+    data = pd.read_csv("completed.csv")
+    print(data.to_string(index=False))
+    print()
+
 def submenu23():
+
     data = pd.read_csv("proj.csv")
     print(data.to_string(index=False))
     print()
 
 
 def show_submenu3():
+
     print("(1)Create Schedule")
     print("(2)View Updated Schedule")
 
 
 def submenu31():
+
     data = pd.read_csv("proj.csv")
     sorted_data = data.sort_values(by=["Priority", "Size"], ascending=True)
-    sorted_data.to_csv(r'proj.csv', index=False)
+    sorted_data.to_csv(r'sorted.csv', index=False)
     print()
 
 
 def submenu32():
-    data = pd.read_csv("proj.csv")
+
+    data = pd.read_csv("sorted.csv.csv")
     print(data.to_string(index=False))
     print()
 
 
-def show_submenu4():
-    print("unimplemented")
+def submenu4():
+
+    # reading csv
+    data = pd.read_csv("sorted.csv")
+    # getting first row
+    test = data.head(1)
+    # removing first row
+    data = data.iloc[1:]
+    next = data.head(1)
+
+    # saving new csv
+    data.to_csv("sorted.csv", index=False)
+
+    print(next)
+
+    test.to_csv("completed.csv", mode="a", index=False, header=False)
 
 
 def main():
+
     while True:
         show_menu()
         choice = input("Enter your choice: ")
@@ -105,7 +133,7 @@ def main():
                 submenu21(str(input_id))
 
             elif sub_choice == "2":
-                print("Unimplemented")
+                submenu22()
 
             elif sub_choice == "3":
                 submenu23()
@@ -121,15 +149,15 @@ def main():
                 submenu32()
 
         elif choice == "4":
-            print("Unimplemented")
+            submenu4()
+            print()
 
         elif choice == "5":
             exit()
             print()
 
         elif choice == "6":
-            data = pd.read_csv("sorted.csv")
-            print(data.values[1][1])
+            print()
 
         else:
             print("Invalid Input")
