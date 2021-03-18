@@ -2,7 +2,7 @@ import csv
 import pandas as pd
 
 
-def show_menu():
+def menu():
     print("(1)Input Project Details")
     print("(2)View Projects")
     print("(3)Schedule Projects")
@@ -10,7 +10,7 @@ def show_menu():
     print("(5)Exit")
 
 
-def enter_project():
+def input_project():
     id_number = input("Enter ID Number: ")
     flag = True
     while flag:
@@ -27,106 +27,138 @@ def enter_project():
     project_title = input("Enter project title: ")
     project_size = input("Enter number of pages: ")
     project_priority = input("Enter priority: ")
+    print()
     infile.close()
 
     file = open("proj.csv", "a", newline="\n")
     cwriter = csv.writer(file)
-    cwriter.writerow([id_number], project_title, project_size, project_priority)
+    cwriter.writerow([id_number, project_title, project_size, project_priority])
 
     file.close()
 
+    sortedfile = open("sorted.csv", "a", newline="\n")
+    cwriter = csv.writer(sortedfile)
+    cwriter.writerow([id_number, project_title, project_size, project_priority])
 
-def show_submenu2():
+
+def view_proj_submenu():
     print("(1)One Project")
     print("(2)Show completed project")
     print("(3)Show all projects")
 
 
-def submenu21(proj_id):
-    file = open("proj.csv", "r", encoding='utf-8-sig')
-    table = csv.DictReader(file)
-    proj = {}
+def view_one_proj():
+    input_id = int(input("Enter ID to be searched: "))
 
-    try:
-        for row in table:
-            proj[row["ID"]] = {k: v for k, v in row.items() if k != 'ID'}
-        print(proj[proj_id])
-        print()
-    except KeyError:
+    data = pd.read_csv("proj.csv")
+    if data[data['ID'] == input_id].empty:
         print()
         print("Sorry, ID does not exist.")
         print()
+    else:
+        res = data[data['ID'] == input_id]
+        print()
+        print(res.to_string(index=False))
+        print()
 
-    file.close()
+
+def completed_proj():
+    data = pd.read_csv("completed.csv")
+    if data.empty:
+        print('DataFrame is empty')
+    else:
+        print()
+        print(data.to_string(index=False))
+        print()
 
 
-def submenu23():
+
+def all_proj():
     data = pd.read_csv("proj.csv")
+    print()
     print(data.to_string(index=False))
     print()
 
 
-def show_submenu3():
+def sched_submenu():
     print("(1)Create Schedule")
     print("(2)View Updated Schedule")
 
 
-def submenu31():
-    data = pd.read_csv("proj.csv")
+def create_sched():
+    data = pd.read_csv("sorted.csv")
     sorted_data = data.sort_values(by=["Priority", "Size"], ascending=True)
-    sorted_data.to_csv('queue.csv', mode='w', index=False)
+    sorted_data.to_csv('sorted.csv', mode='w', index=False)
 
-    queue = pd.read_csv('queue.csv')
     print()
-    print(queue.to_string(index=False))
+    print(sorted_data.to_string(index=False))
     print()
 
 
-def submenu32():
-    data = pd.read_csv("proj.csv")
+def update_sched():
+    data = pd.read_csv("sorted.csv")
+    sorted_data = data.sort_values(by=["Priority", "Size"], ascending=True)
+    sorted_data.to_csv('sorted.csv', mode='w', index=False)
+    print()
     print(data.to_string(index=False))
     print()
 
 
-def show_submenu4():
-    print("unimplemented")
+def get_proj():
+    # reading csv
+    data = pd.read_csv("sorted.csv")
+    sorted_data = data.sort_values(by=["Priority", "Size"], ascending=True)
+    sorted_data.to_csv('sorted.csv', mode='w', index=False)
+    # getting first row
+    test = sorted_data.head(1)
+    # removing first row
+    remove_row = sorted_data.iloc[1:]
+
+    # saving new csv
+    remove_row.to_csv("sorted.csv", index=False)
+
+    print("Getting Project.....")
+    print("Project:")
+    print(test.to_string(index=False))
+    print()
+
+    test.to_csv("completed.csv", mode="a", index=False, header=False)
 
 
 def main():
     while True:
-        show_menu()
+        menu()
         choice = input("Enter your choice: ")
         print()
 
         if choice == "1":
-            enter_project()
+            input_project()
 
         elif choice == "2":
-            show_submenu2()
+            view_proj_submenu()
             sub_choice = input("Enter your choice: ")
 
             if sub_choice == "1":
-                input_id = int(input("Enter ID to be searched: "))
-                submenu21(str(input_id))
+                view_one_proj()
 
             elif sub_choice == "2":
-                print("Unimplemented")
+                completed_proj()
 
             elif sub_choice == "3":
-                submenu23()
+                all_proj()
 
         elif choice == "3":
-            show_submenu3()
+            sched_submenu()
 
             sub_choice = input("Enter your choice: ")
             if sub_choice == "1":
-                submenu31()
+                create_sched()
 
             elif sub_choice == "2":
-                submenu32()
+                update_sched()
 
         elif choice == "4":
-            print("Unimplemented")
+            get_proj()
 
         elif choice == "5":
             exit()
