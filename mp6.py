@@ -1,5 +1,6 @@
 import csv
 import pandas as pd
+from numpy.ma import indices
 
 
 def show_menu():
@@ -84,14 +85,30 @@ def show_submenu3():
 def submenu31():
 
     data = pd.read_csv("proj.csv")
-    sorted_data = data.sort_values(by=["Priority", "Size"], ascending=True)
+    data2 = pd.read_csv("completed.csv")
+
+    # data - data2
+    # proj.csv - completed.csv
+    # anong meron sa proj na wla sa completed
+    concat_proj_sorted = pd.concat([data, data2])
+    diff = concat_proj_sorted.drop_duplicates(subset=["ID"], keep=False)
+
+    sorted_data = diff.sort_values(by=["Priority", "Size"], ascending=True)
     sorted_data.to_csv(r'sorted.csv', index=False)
+
     print()
+
+    # reference:
+    # https://pandas.pydata.org/docs/reference/api/pandas.concat.html
 
 
 def submenu32():
 
-    data = pd.read_csv("sorted.csv.csv")
+    # create an exception here
+    # if there is no schedule file
+    # or nothing in first row of file
+    # submenu31()
+    data = pd.read_csv("sorted.csv")
     print(data.to_string(index=False))
     print()
 
