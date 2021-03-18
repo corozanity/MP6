@@ -86,20 +86,27 @@ def sched_submenu():
 
 
 def create_sched():
-    data = pd.read_csv("sorted.csv")
-    sorted_data = data.sort_values(by=["Priority", "Size"], ascending=True)
-    sorted_data.to_csv('sorted.csv', mode='w', index=False)
+    data = pd.read_csv("proj.csv")
+    data2 = pd.read_csv("completed.csv")
 
-    print()
-    print(sorted_data.to_string(index=False))
+    # data - data2
+    # proj.csv - completed.csv
+    # anong meron sa proj na wla sa completed
+    concat_proj_sorted = pd.concat([data, data2])
+    diff = concat_proj_sorted.drop_duplicates(subset=["ID"], keep=False)
+
+    sorted_data = diff.sort_values(by=["Priority", "Size"], ascending=True)
+    sorted_data.to_csv(r'sorted.csv', index=False)
+
     print()
 
 
 def update_sched():
+    # create an exception here
+    # if there is no schedule file
+    # or nothing in first row of file
+    # submenu31()
     data = pd.read_csv("sorted.csv")
-    sorted_data = data.sort_values(by=["Priority", "Size"], ascending=True)
-    sorted_data.to_csv('sorted.csv', mode='w', index=False)
-    print()
     print(data.to_string(index=False))
     print()
 
