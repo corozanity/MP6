@@ -1,6 +1,5 @@
 import csv
 import pandas as pd
-from numpy.ma import indices
 
 
 def show_menu():
@@ -12,7 +11,6 @@ def show_menu():
 
 
 def enter_project():
-
     id_number = input("Enter ID Number: ")
     flag = True
     while flag:
@@ -33,20 +31,18 @@ def enter_project():
 
     file = open("proj.csv", "a", newline="\n")
     cwriter = csv.writer(file)
-    cwriter.writerow([project_priority, project_title, project_size, id_number])
+    cwriter.writerow([id_number], project_title, project_size, project_priority)
 
     file.close()
 
 
 def show_submenu2():
-
     print("(1)One Project")
     print("(2)Show completed project")
     print("(3)Show all projects")
 
 
 def submenu21(proj_id):
-
     file = open("proj.csv", "r", encoding='utf-8-sig')
     table = csv.DictReader(file)
     proj = {}
@@ -57,83 +53,46 @@ def submenu21(proj_id):
         print(proj[proj_id])
         print()
     except KeyError:
-        print("ID does not exist.")
+        print()
+        print("Sorry, ID does not exist.")
         print()
 
     file.close()
 
 
-def submenu22():
-
-    data = pd.read_csv("completed.csv")
-    print(data.to_string(index=False))
-    print()
-
-
 def submenu23():
-
     data = pd.read_csv("proj.csv")
     print(data.to_string(index=False))
     print()
 
 
 def show_submenu3():
-
     print("(1)Create Schedule")
     print("(2)View Updated Schedule")
 
 
 def submenu31():
-
     data = pd.read_csv("proj.csv")
-    data2 = pd.read_csv("completed.csv")
+    sorted_data = data.sort_values(by=["Priority", "Size"], ascending=True)
+    sorted_data.to_csv('queue.csv', mode='w', index=False)
 
-    # data - data2
-    # proj.csv - completed.csv
-    # anong meron sa proj na wla sa completed
-    concat_proj_sorted = pd.concat([data, data2])
-    diff = concat_proj_sorted.drop_duplicates(subset=["ID"], keep=False)
-
-    sorted_data = diff.sort_values(by=["Priority", "Size"], ascending=True)
-    sorted_data.to_csv(r'sorted.csv', index=False)
-
+    queue = pd.read_csv('queue.csv')
     print()
-
-    # reference:
-    # https://pandas.pydata.org/docs/reference/api/pandas.concat.html
+    print(queue.to_string(index=False))
+    print()
 
 
 def submenu32():
-
-    # create an exception here
-    # if there is no schedule file
-    # or nothing in first row of file
-    # submenu31()
-    data = pd.read_csv("sorted.csv")
+    data = pd.read_csv("proj.csv")
     print(data.to_string(index=False))
     print()
 
 
-def submenu4():
-
-    # reading csv
-    data = pd.read_csv("sorted.csv")
-    # getting first row
-    test = data.head(1)
-    # removing first row
-    data = data.iloc[1:]
-    next = data.head(1)
-
-    # saving new csv
-    data.to_csv("sorted.csv", index=False)
-
-    print(next)
-
-    test.to_csv("completed.csv", mode="a", index=False, header=False)
+def show_submenu4():
+    print("unimplemented")
 
 
 def main():
-
     while True:
         show_menu()
         choice = input("Enter your choice: ")
@@ -151,7 +110,7 @@ def main():
                 submenu21(str(input_id))
 
             elif sub_choice == "2":
-                submenu22()
+                print("Unimplemented")
 
             elif sub_choice == "3":
                 submenu23()
@@ -167,12 +126,15 @@ def main():
                 submenu32()
 
         elif choice == "4":
-            submenu4()
-            print()
+            print("Unimplemented")
 
         elif choice == "5":
             exit()
             print()
+
+        elif choice == "6":
+            data = pd.read_csv("sorted.csv")
+            print(data.values[1][1])
 
         else:
             print("Invalid Input")
