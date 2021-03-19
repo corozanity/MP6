@@ -11,34 +11,46 @@ def menu():
 
 
 def input_project():
-    id_number = input("Enter ID Number: ")
-    flag = True
-    while flag:
-        with open("proj.csv", "r") as infile:
-            creader = csv.DictReader(infile, delimiter=",")
-            for row in creader:
-                while id_number in row['ID']:
-                    print("ID already exists.")
-                    id_number = input("Enter ID Number: ")
+    id_number = input("Enter ID Number:")
+    csvreader = csv.reader(open("proj.csv", "r"))
 
-                else:
-                    flag = False
+    try:
+        for row in csvreader:
+            if id_number == row[0]:
+                print("ID already exists.")
+                print()
+                main()
 
-    project_title = input("Enter project title: ")
-    project_size = input("Enter number of pages: ")
-    project_priority = input("Enter priority: ")
-    print()
-    infile.close()
+        project_title = input("Enter project title: ")
+        project_size = input("Enter number of pages: ")
+        project_priority = input("Enter priority: ")
+        print()
 
-    file = open("proj.csv", "a", newline="\n")
-    cwriter = csv.writer(file)
-    cwriter.writerow([id_number, project_title, project_size, project_priority])
+        file = open("proj.csv", "a", newline="\n")
+        cwriter = csv.writer(file)
+        cwriter.writerow([id_number, project_title, project_size, project_priority])
 
-    file.close()
+        file.close()
 
-    sortedfile = open("sorted.csv", "a", newline="\n")
-    cwriter = csv.writer(sortedfile)
-    cwriter.writerow([id_number, project_title, project_size, project_priority])
+        sortedfile = open("sorted.csv", "a", newline="\n")
+        csvwriter = csv.writer(sortedfile)
+        csvwriter.writerow([id_number, project_title, project_size, project_priority])
+
+    except IndexError:
+        project_title = input("Enter project title: ")
+        project_size = input("Enter number of pages: ")
+        project_priority = input("Enter priority: ")
+        print()
+
+        file = open("proj.csv", "a", newline="\n")
+        cwriter = csv.writer(file)
+        cwriter.writerow([id_number, project_title, project_size, project_priority])
+
+        file.close()
+
+        sortedfile = open("sorted.csv", "a", newline="\n")
+        csvwriter = csv.writer(sortedfile)
+        csvwriter.writerow([id_number, project_title, project_size, project_priority])
 
 
 def view_proj_submenu():
@@ -65,19 +77,25 @@ def view_one_proj():
 def completed_proj():
     data = pd.read_csv("completed.csv")
     if data.empty:
-        print('DataFrame is empty')
+        print()
+        print('No projects have been completed.')
+        print()
     else:
         print()
         print(data.to_string(index=False))
         print()
 
 
-
 def all_proj():
     data = pd.read_csv("proj.csv")
-    print()
-    print(data.to_string(index=False))
-    print()
+    if data.empty:
+        print()
+        print('No projects have been created.')
+        print()
+    else:
+        print()
+        print(data.to_string(index=False))
+        print()
 
 
 def sched_submenu():
@@ -107,8 +125,16 @@ def update_sched():
     # or nothing in first row of file
     # submenu31()
     data = pd.read_csv("sorted.csv")
-    print(data.to_string(index=False))
-    print()
+    sorted_data = data.sort_values(by=["Priority", "Size"], ascending=True)
+    sorted_data.to_csv('sorted.csv', mode='w', index=False)
+    if sorted_data.empty:
+        print()
+        print("No projects have been created.")
+        print()
+    else:
+        print()
+        print(sorted_data.to_string(index=False))
+        print()
 
 
 def get_proj():
@@ -116,20 +142,22 @@ def get_proj():
     data = pd.read_csv("sorted.csv")
     sorted_data = data.sort_values(by=["Priority", "Size"], ascending=True)
     sorted_data.to_csv('sorted.csv', mode='w', index=False)
-    # getting first row
-    test = sorted_data.head(1)
-    # removing first row
-    remove_row = sorted_data.iloc[1:]
+    if sorted_data.empty:
+        print("No projects available in queue.")
+        print()
+    else:
+        # getting first row
+        test = sorted_data.head(1)
+        # removing first row
+        remove_row = sorted_data.iloc[1:]
+        # saving new csv
+        remove_row.to_csv("sorted.csv", index=False)
+        print("Getting Project.....")
+        print("Project:")
+        print(test.to_string(index=False))
+        print()
 
-    # saving new csv
-    remove_row.to_csv("sorted.csv", index=False)
-
-    print("Getting Project.....")
-    print("Project:")
-    print(test.to_string(index=False))
-    print()
-
-    test.to_csv("completed.csv", mode="a", index=False, header=False)
+        test.to_csv("completed.csv", mode="a", index=False, header=False)
 
 
 def main():
