@@ -15,6 +15,7 @@ def input_project():
     csvreader = csv.reader(open("proj.csv", "r"))
 
     try:
+        # Checks if user input is in ID column of csv file
         for row in csvreader:
             if id_number == row[0]:
                 print("ID already exists.")
@@ -26,31 +27,36 @@ def input_project():
         project_priority = input("Enter priority: ")
         print()
 
+        # Appends values to proj.csv
         file = open("proj.csv", "a", newline="\n")
         cwriter = csv.writer(file)
         cwriter.writerow([id_number, project_title, project_size, project_priority])
-
         file.close()
 
+        # Appends values to sorted.csv
         sortedfile = open("sorted.csv", "a", newline="\n")
         csvwriter = csv.writer(sortedfile)
         csvwriter.writerow([id_number, project_title, project_size, project_priority])
+        sortedfile.close()
 
+    # Handles error if csv file is empty
     except IndexError:
         project_title = input("Enter project title: ")
         project_size = input("Enter number of pages: ")
         project_priority = input("Enter priority: ")
         print()
 
+        # Appends values to proj.csv
         file = open("proj.csv", "a", newline="\n")
         cwriter = csv.writer(file)
         cwriter.writerow([id_number, project_title, project_size, project_priority])
-
         file.close()
 
+        # Appends values to sorted.csv
         sortedfile = open("sorted.csv", "a", newline="\n")
         csvwriter = csv.writer(sortedfile)
         csvwriter.writerow([id_number, project_title, project_size, project_priority])
+        sortedfile.close()
 
 
 def view_proj_submenu():
@@ -61,39 +67,46 @@ def view_proj_submenu():
 
 def view_one_proj():
     input_id = int(input("Enter ID to be searched: "))
-
     data = pd.read_csv("proj.csv")
+
+    # Checks if proj.csv file is empty
     if data[data['ID'] == input_id].empty:
         print()
         print("Sorry, ID does not exist.")
         print()
     else:
+        # Checks if user input matches a value in column ID
         res = data[data['ID'] == input_id]
         print()
+        # Returns row of matched ID
         print(res.to_string(index=False))
         print()
 
 
 def completed_proj():
     data = pd.read_csv("completed.csv")
+    # Checks if completed.csv file is empty
     if data.empty:
         print()
         print('No projects have been completed.')
         print()
     else:
         print()
+        # Returns all rows from completed.csv
         print(data.to_string(index=False))
         print()
 
 
 def all_proj():
     data = pd.read_csv("proj.csv")
+    # Checks if proj.csv file is empty
     if data.empty:
         print()
         print('No projects have been created.')
         print()
     else:
         print()
+        # Returns all rows from proj.csv
         print(data.to_string(index=False))
         print()
 
@@ -104,44 +117,47 @@ def sched_submenu():
 
 
 def create_sched():
-    data = pd.read_csv("proj.csv")
-    data2 = pd.read_csv("completed.csv")
-
-    # data - data2
-    # proj.csv - completed.csv
-    # anong meron sa proj na wla sa completed
-    concat_proj_sorted = pd.concat([data, data2])
-    diff = concat_proj_sorted.drop_duplicates(subset=["ID"], keep=False)
-
-    sorted_data = diff.sort_values(by=["Priority", "Size"], ascending=True)
-    sorted_data.to_csv(r'sorted.csv', index=False)
-
-    print()
+    data = pd.read_csv("sorted.csv")
+    # Checks if sorted.csv file is empty
+    if data.empty:
+        print()
+        print('Cannot create schedule. User must create a project first.')
+        print()
+    else:
+        # Sorts values in sorted.csv by priority and size
+        sorted_data = data.sort_values(by=["Priority", "Size"], ascending=True)
+        # Writes the sorted values on sorted.csv
+        sorted_data.to_csv(r'sorted.csv', index=False)
+        print()
+        print("Schedule created, you can view updated schedule now.")
+        print()
 
 
 def update_sched():
-    # create an exception here
-    # if there is no schedule file
-    # or nothing in first row of file
-    # submenu31()
     data = pd.read_csv("sorted.csv")
+    # Sorts values in sorted.csv by priority and size
     sorted_data = data.sort_values(by=["Priority", "Size"], ascending=True)
+    # Writes the sorted values on sorted.csv
     sorted_data.to_csv('sorted.csv', mode='w', index=False)
+    # Checks if sorted.csv file is empty
     if sorted_data.empty:
         print()
-        print("No projects have been created.")
+        print("A schedule has not been created. Create a schedule first.")
         print()
     else:
         print()
+        # Returns all rows from sorted.csv
         print(sorted_data.to_string(index=False))
         print()
 
 
 def get_proj():
-    # reading csv
     data = pd.read_csv("sorted.csv")
+    # Sorts values in sorted.csv by priority and size
     sorted_data = data.sort_values(by=["Priority", "Size"], ascending=True)
+    # Writes the sorted values on sorted.csv
     sorted_data.to_csv('sorted.csv', mode='w', index=False)
+    # Checks if sorted.csv file is empty
     if sorted_data.empty:
         print("No projects available in queue.")
         print()
@@ -150,13 +166,14 @@ def get_proj():
         test = sorted_data.head(1)
         # removing first row
         remove_row = sorted_data.iloc[1:]
-        # saving new csv
+        # saving new sorted.csv
         remove_row.to_csv("sorted.csv", index=False)
         print("Getting Project.....")
         print("Project:")
+        # Returns the removed row from sorted.csv
         print(test.to_string(index=False))
         print()
-
+        # Appends the removed row to completed.csv
         test.to_csv("completed.csv", mode="a", index=False, header=False)
 
 
@@ -182,6 +199,10 @@ def main():
             elif sub_choice == "3":
                 all_proj()
 
+            else:
+                print("Invalid Input")
+                print()
+
         elif choice == "3":
             sched_submenu()
 
@@ -192,16 +213,16 @@ def main():
             elif sub_choice == "2":
                 update_sched()
 
+            else:
+                print("Invalid Input")
+                print()
+
         elif choice == "4":
             get_proj()
 
         elif choice == "5":
             exit()
             print()
-
-        elif choice == "6":
-            data = pd.read_csv("sorted.csv")
-            print(data.values[1][1])
 
         else:
             print("Invalid Input")
