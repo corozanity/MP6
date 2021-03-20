@@ -11,27 +11,34 @@ def menu():
 
 
 def input_project():
-    id_number = input("Enter ID Number:")
-    csvreader = csv.reader(open("proj.csv", "r"))
+    try:
+        id_number = input("Enter ID Number:")
+        csvreader = csv.reader(open("proj.csv", "r"))
 
-    # Checks if user input is in ID column of csv file
-    for row in csvreader:
-        if id_number == row[0]:
-            print()
-            print("ID already exists.")
-            print()
-            main()
+        # Checks if user input is in ID column of csv file
+        for row in csvreader:
+            if id_number == row[0]:
+                print()
+                print("ID already exists.")
+                print()
+                main()
 
-    project_title = input("Enter project title: ")
-    project_size = input("Enter number of pages: ")
-    project_priority = input("Enter priority: ")
-    print()
+        project_title = input("Enter project title: ")
+        project_size = input("Enter number of pages: ")
+        project_priority = input("Enter priority: ")
+        print()
 
-    # Appends values to proj.csv
-    file = open("proj.csv", "a", newline="\n")
-    cwriter = csv.writer(file)
-    cwriter.writerow([id_number, project_title, project_size, project_priority])
-    file.close()
+        # Checks if all variable have values
+        if id_number and project_title and project_size and project_priority:
+            # Appends values to proj.csv
+            file = open("proj.csv", "a", newline="\n")
+            cwriter = csv.writer(file)
+            cwriter.writerow([id_number, project_title, project_size, project_priority])
+            file.close()
+        else:
+            raise ValueError("Invalid Input")
+    except ValueError as e:
+        print(e)
 
 
 def view_proj_submenu():
@@ -41,20 +48,25 @@ def view_proj_submenu():
 
 
 def view_one_proj():
-    input_id = int(input("Enter ID to be searched: "))
-    data = pd.read_csv("proj.csv")
+    try:
+        input_id = int(input("Enter ID to be searched: "))
+        data = pd.read_csv("proj.csv")
 
-    # Checks if proj.csv file is empty
-    if data[data['ID'] == input_id].empty:
-        print()
-        print("Sorry, ID does not exist.")
-        print()
-    else:
-        # Checks if user input matches a value in column ID
-        res = data[data['ID'] == input_id]
-        print()
-        # Returns row of matched ID
-        print(res.to_string(index=False))
+        # Checks if proj.csv file is empty
+        if data[data['ID'] == input_id].empty:
+            print()
+            print("Sorry, ID does not exist.")
+            print()
+        else:
+            # Checks if user input matches a value in column ID
+            res = data[data['ID'] == input_id]
+            print()
+            # Returns row of matched ID
+            print(res.to_string(index=False))
+            print()
+    except ValueError:
+        print("Wrong Input")
+        # menu()
         print()
 
 
@@ -99,13 +111,21 @@ def create_sched():
         print('Cannot create schedule. User must create a project first.')
         print()
     else:
+        data2 = pd.read_csv("completed.csv")
+
+        # get data that is in proj.csv
+        # that doesn't exist in completed.csv
+        concat_proj_sorted = pd.concat([data, data2])
+        diff = concat_proj_sorted.drop_duplicates(subset=["ID"], keep=False)
+
         # Sorts values in sorted.csv by priority and size
-        sorted_data = data.sort_values(by=["Priority", "Size"], ascending=True)
+        sorted_data = diff.sort_values(by=["Priority", "Size"], ascending=True)
+
         # Writes the sorted values on sorted.csv
         sorted_data.to_csv(r'sorted.csv', index=False)
-        print()
-        print("Schedule created, you can view updated schedule now.")
-        print()
+
+        print("Schedule created!")
+        print(pd.read_csv("sorted.csv").to_string(index=False))
 
 
 def update_sched():
@@ -134,7 +154,6 @@ def get_proj():
     sorted_data.to_csv('sorted.csv', mode='w', index=False)
     # Checks if sorted.csv file is empty
     if sorted_data.empty:
-        print()
         print("No projects available in queue.")
         print()
     else:
