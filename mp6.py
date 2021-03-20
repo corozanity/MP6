@@ -14,49 +14,24 @@ def input_project():
     id_number = input("Enter ID Number:")
     csvreader = csv.reader(open("proj.csv", "r"))
 
-    try:
-        # Checks if user input is in ID column of csv file
-        for row in csvreader:
-            if id_number == row[0]:
-                print("ID already exists.")
-                print()
-                main()
+    # Checks if user input is in ID column of csv file
+    for row in csvreader:
+        if id_number == row[0]:
+            print()
+            print("ID already exists.")
+            print()
+            main()
 
-        project_title = input("Enter project title: ")
-        project_size = input("Enter number of pages: ")
-        project_priority = input("Enter priority: ")
-        print()
+    project_title = input("Enter project title: ")
+    project_size = input("Enter number of pages: ")
+    project_priority = input("Enter priority: ")
+    print()
 
-        # Appends values to proj.csv
-        file = open("proj.csv", "a", newline="\n")
-        cwriter = csv.writer(file)
-        cwriter.writerow([id_number, project_title, project_size, project_priority])
-        file.close()
-
-        # Appends values to sorted.csv
-        sortedfile = open("sorted.csv", "a", newline="\n")
-        csvwriter = csv.writer(sortedfile)
-        csvwriter.writerow([id_number, project_title, project_size, project_priority])
-        sortedfile.close()
-
-    # Handles error if csv file is empty
-    except IndexError:
-        project_title = input("Enter project title: ")
-        project_size = input("Enter number of pages: ")
-        project_priority = input("Enter priority: ")
-        print()
-
-        # Appends values to proj.csv
-        file = open("proj.csv", "a", newline="\n")
-        cwriter = csv.writer(file)
-        cwriter.writerow([id_number, project_title, project_size, project_priority])
-        file.close()
-
-        # Appends values to sorted.csv
-        sortedfile = open("sorted.csv", "a", newline="\n")
-        csvwriter = csv.writer(sortedfile)
-        csvwriter.writerow([id_number, project_title, project_size, project_priority])
-        sortedfile.close()
+    # Appends values to proj.csv
+    file = open("proj.csv", "a", newline="\n")
+    cwriter = csv.writer(file)
+    cwriter.writerow([id_number, project_title, project_size, project_priority])
+    file.close()
 
 
 def view_proj_submenu():
@@ -117,8 +92,8 @@ def sched_submenu():
 
 
 def create_sched():
-    data = pd.read_csv("sorted.csv")
-    # Checks if sorted.csv file is empty
+    data = pd.read_csv("proj.csv")
+    # Checks if proj.csv file is empty
     if data.empty:
         print()
         print('Cannot create schedule. User must create a project first.')
@@ -159,6 +134,7 @@ def get_proj():
     sorted_data.to_csv('sorted.csv', mode='w', index=False)
     # Checks if sorted.csv file is empty
     if sorted_data.empty:
+        print()
         print("No projects available in queue.")
         print()
     else:
