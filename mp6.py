@@ -1,9 +1,8 @@
 import csv
 import pandas as pd
-from numpy.ma import indices
 
 
-def show_menu():
+def menu():
     print("(1)Input Project Details")
     print("(2)View Projects")
     print("(3)Schedule Projects")
@@ -11,164 +10,190 @@ def show_menu():
     print("(5)Exit")
 
 
-def enter_project():
+def input_project():
+    id_number = input("Enter ID Number:")
+    csvreader = csv.reader(open("proj.csv", "r"))
 
-    id_number = input("Enter ID Number: ")
-    flag = True
-    while flag:
-        with open("proj.csv", "r") as infile:
-            creader = csv.DictReader(infile, delimiter=",")
-            for row in creader:
-                while id_number in row['ID']:
-                    print("ID already exists.")
-                    id_number = input("Enter ID Number: ")
-
-                else:
-                    flag = False
+    # Checks if user input is in ID column of csv file
+    for row in csvreader:
+        if id_number == row[0]:
+            print()
+            print("ID already exists.")
+            print()
+            main()
 
     project_title = input("Enter project title: ")
     project_size = input("Enter number of pages: ")
     project_priority = input("Enter priority: ")
-    infile.close()
+    print()
 
+    # Appends values to proj.csv
     file = open("proj.csv", "a", newline="\n")
     cwriter = csv.writer(file)
-    cwriter.writerow([project_priority, project_title, project_size, id_number])
-
+    cwriter.writerow([id_number, project_title, project_size, project_priority])
     file.close()
 
 
-def show_submenu2():
-
+def view_proj_submenu():
     print("(1)One Project")
     print("(2)Show completed project")
     print("(3)Show all projects")
 
 
-def submenu21(proj_id):
-
-    file = open("proj.csv", "r", encoding='utf-8-sig')
-    table = csv.DictReader(file)
-    proj = {}
-
-    try:
-        for row in table:
-            proj[row["ID"]] = {k: v for k, v in row.items() if k != 'ID'}
-        print(proj[proj_id])
-        print()
-    except KeyError:
-        print("ID does not exist.")
-        print()
-
-    file.close()
-
-
-def submenu22():
-
-    data = pd.read_csv("completed.csv")
-    print(data.to_string(index=False))
-    print()
-
-
-def submenu23():
-
+def view_one_proj():
+    input_id = int(input("Enter ID to be searched: "))
     data = pd.read_csv("proj.csv")
-    print(data.to_string(index=False))
-    print()
+
+    # Checks if proj.csv file is empty
+    if data[data['ID'] == input_id].empty:
+        print()
+        print("Sorry, ID does not exist.")
+        print()
+    else:
+        # Checks if user input matches a value in column ID
+        res = data[data['ID'] == input_id]
+        print()
+        # Returns row of matched ID
+        print(res.to_string(index=False))
+        print()
 
 
-def show_submenu3():
+def completed_proj():
+    data = pd.read_csv("completed.csv")
+    # Checks if completed.csv file is empty
+    if data.empty:
+        print()
+        print('No projects have been completed.')
+        print()
+    else:
+        print()
+        # Returns all rows from completed.csv
+        print(data.to_string(index=False))
+        print()
 
+
+def all_proj():
+    data = pd.read_csv("proj.csv")
+    # Checks if proj.csv file is empty
+    if data.empty:
+        print()
+        print('No projects have been created.')
+        print()
+    else:
+        print()
+        # Returns all rows from proj.csv
+        print(data.to_string(index=False))
+        print()
+
+
+def sched_submenu():
     print("(1)Create Schedule")
     print("(2)View Updated Schedule")
 
 
-def submenu31():
-
+def create_sched():
     data = pd.read_csv("proj.csv")
-    data2 = pd.read_csv("completed.csv")
-
-    # data - data2
-    # proj.csv - completed.csv
-    # anong meron sa proj na wla sa completed
-    concat_proj_sorted = pd.concat([data, data2])
-    diff = concat_proj_sorted.drop_duplicates(subset=["ID"], keep=False)
-
-    sorted_data = diff.sort_values(by=["Priority", "Size"], ascending=True)
-    sorted_data.to_csv(r'sorted.csv', index=False)
-
-    print()
-
-    # reference:
-    # https://pandas.pydata.org/docs/reference/api/pandas.concat.html
+    # Checks if proj.csv file is empty
+    if data.empty:
+        print()
+        print('Cannot create schedule. User must create a project first.')
+        print()
+    else:
+        # Sorts values in sorted.csv by priority and size
+        sorted_data = data.sort_values(by=["Priority", "Size"], ascending=True)
+        # Writes the sorted values on sorted.csv
+        sorted_data.to_csv(r'sorted.csv', index=False)
+        print()
+        print("Schedule created, you can view updated schedule now.")
+        print()
 
 
-def submenu32():
-
-    # create an exception here
-    # if there is no schedule file
-    # or nothing in first row of file
-    # submenu31()
+def update_sched():
     data = pd.read_csv("sorted.csv")
-    print(data.to_string(index=False))
-    print()
+    # Sorts values in sorted.csv by priority and size
+    sorted_data = data.sort_values(by=["Priority", "Size"], ascending=True)
+    # Writes the sorted values on sorted.csv
+    sorted_data.to_csv('sorted.csv', mode='w', index=False)
+    # Checks if sorted.csv file is empty
+    if sorted_data.empty:
+        print()
+        print("A schedule has not been created. Create a schedule first.")
+        print()
+    else:
+        print()
+        # Returns all rows from sorted.csv
+        print(sorted_data.to_string(index=False))
+        print()
 
 
-def submenu4():
-
-    # reading csv
+def get_proj():
     data = pd.read_csv("sorted.csv")
-    # getting first row
-    test = data.head(1)
-    # removing first row
-    data = data.iloc[1:]
-    next = data.head(1)
-
-    # saving new csv
-    data.to_csv("sorted.csv", index=False)
-
-    print(next)
-
-    test.to_csv("completed.csv", mode="a", index=False, header=False)
+    # Sorts values in sorted.csv by priority and size
+    sorted_data = data.sort_values(by=["Priority", "Size"], ascending=True)
+    # Writes the sorted values on sorted.csv
+    sorted_data.to_csv('sorted.csv', mode='w', index=False)
+    # Checks if sorted.csv file is empty
+    if sorted_data.empty:
+        print("No projects available in queue.")
+        print()
+    else:
+        # getting first row
+        test = sorted_data.head(1)
+        # removing first row
+        remove_row = sorted_data.iloc[1:]
+        # saving new sorted.csv
+        remove_row.to_csv("sorted.csv", index=False)
+        print("Getting Project.....")
+        print("Project:")
+        # Returns the removed row from sorted.csv
+        print(test.to_string(index=False))
+        print()
+        # Appends the removed row to completed.csv
+        test.to_csv("completed.csv", mode="a", index=False, header=False)
 
 
 def main():
-
     while True:
-        show_menu()
+        menu()
         choice = input("Enter your choice: ")
         print()
 
         if choice == "1":
-            enter_project()
+            input_project()
 
         elif choice == "2":
-            show_submenu2()
+            view_proj_submenu()
             sub_choice = input("Enter your choice: ")
 
             if sub_choice == "1":
-                input_id = int(input("Enter ID to be searched: "))
-                submenu21(str(input_id))
+                view_one_proj()
 
             elif sub_choice == "2":
-                submenu22()
+                completed_proj()
 
             elif sub_choice == "3":
-                submenu23()
+                all_proj()
+
+            else:
+                print("Invalid Input")
+                print()
 
         elif choice == "3":
-            show_submenu3()
+            sched_submenu()
 
             sub_choice = input("Enter your choice: ")
             if sub_choice == "1":
-                submenu31()
+                create_sched()
 
             elif sub_choice == "2":
-                submenu32()
+                update_sched()
+
+            else:
+                print("Invalid Input")
+                print()
 
         elif choice == "4":
-            submenu4()
-            print()
+            get_proj()
 
         elif choice == "5":
             exit()
